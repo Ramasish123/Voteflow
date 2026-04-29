@@ -1250,29 +1250,44 @@
 // Google Maps dynamic loading
 async function loadGoogleMapsScript() {
   try {
+    console.log("Fetching maps key...");
     const res = await fetch('/api/maps-key');
     if (!res.ok) {
-      // If running locally without Vercel backend, handle gracefully
-      document.querySelector('#googleMap p').textContent = "Map API key not available in local environment.";
+      console.error("Maps key fetch failed", res.status);
+      document.querySelector('#googleMap p').textContent = "Map API key not available on server.";
       return;
     }
     const data = await res.json();
+    console.log("Got maps key, injecting script...");
     if (data.key) {
       window.initMap = function() {
-        const mapEl = document.getElementById("googleMap");
-        if (mapEl) {
-          // New Delhi coords as default placeholder
-          const defaultLocation = { lat: 28.6139, lng: 77.2090 };
-          const map = new google.maps.Map(mapEl, {
-            zoom: 14,
-            center: defaultLocation,
-            disableDefaultUI: true,
-          });
-          new google.maps.Marker({
-            position: defaultLocation,
-            map: map,
-            title: "Polling Booth Placeholder"
-          });
+        console.log("initMap called by Google Maps!");
+        try {
+          const mapEl = document.getElementById("googleMap");
+          if (mapEl) {
+            // Clear the "Loading map..." text completely
+            mapEl.innerHTML = "";
+            // Reset styles that might break map rendering
+            mapEl.style.display = "block";
+            mapEl.style.padding = "0";
+
+            const defaultLocation = { lat: 28.6139, lng: 77.2090 };
+            const map = new google.maps.Map(mapEl, {
+              zoom: 14,
+              center: defaultLocation,
+              disableDefaultUI: true,
+            });
+            new google.maps.Marker({
+              position: defaultLocation,
+              map: map,
+              title: "Polling Booth Placeholder"
+            });
+            console.log("Map rendered successfully!");
+          }
+        } catch(err) {
+          console.error("Error inside initMap:", err);
+          const mapEl = document.getElementById("googleMap");
+          if (mapEl) mapEl.innerHTML = `<p style="color:var(--red); padding: 20px;">Map rendering error: ${err.message}</p>`;
         }
       };
 
@@ -1280,12 +1295,18 @@ async function loadGoogleMapsScript() {
       script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&callback=initMap`;
       script.async = true;
       script.defer = true;
+      script.onerror = function() {
+        console.error("Google Maps script failed to load");
+        document.querySelector('#googleMap p').textContent = "Failed to load Google Maps script.";
+      };
       document.head.appendChild(script);
+    } else {
+      document.querySelector('#googleMap p').textContent = "Invalid Maps key returned.";
     }
   } catch (e) {
-    console.warn("Could not load Google Maps API securely", e);
+    console.error("Could not load Google Maps API securely", e);
     const mapMsg = document.querySelector('#googleMap p');
-    if(mapMsg) mapMsg.textContent = "Google Maps API unavailable offline.";
+    if(mapMsg) mapMsg.textContent = "Error loading maps integration.";
   }
 }
 
