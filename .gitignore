@@ -1,1 +1,19 @@
+# 🔐 Secrets (CRITICAL)
 config.js
+.env
+.env.*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.swp
