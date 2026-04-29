@@ -385,7 +385,15 @@
 
       try {
         if (typeof ChatLogic !== 'undefined') {
-          const apiKey = "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";
+          let apiKey = localStorage.getItem("voteFlowApiKey");
+          if (!apiKey) {
+            apiKey = prompt("Please enter your Groq API key to use the AI assistant:");
+            if (apiKey) {
+              localStorage.setItem("voteFlowApiKey", apiKey);
+            } else {
+              throw new Error("No API Key provided.");
+            }
+          }
           const contextStr = ChatLogic.getContext();
           const reply = await ChatLogic.callGroqAPI(question, apiKey, contextStr);
           typingEl.classList.remove("typing");

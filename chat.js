@@ -4,8 +4,13 @@ const ChatLogic = {
     ChatUI.setLoading(true);
     const typingBubble = ChatUI.showTyping();
     
-    // DEMO USE ONLY - Restricted Hackathon Key
-    const apiKey = "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";
+    let apiKey = localStorage.getItem("voteFlowApiKey");
+    if (!apiKey) {
+      apiKey = prompt("Please enter your Groq API key to use the AI assistant:");
+      if (apiKey) {
+        localStorage.setItem("voteFlowApiKey", apiKey);
+      }
+    }
     const contextStr = this.getContext();
 
     if (!apiKey) {
