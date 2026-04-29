@@ -37,8 +37,14 @@ const ChatUI = {
   },
 
   handleSubmit() {
-    const text = this.input.value.trim();
-    if (!text) return;
+    const rawText = this.input.value.trim();
+    const text = this.sanitizeInputForSubmit(rawText);
+
+    if (!text) {
+      this.input.style.border = "1px solid var(--red)";
+      setTimeout(() => { this.input.style.border = ""; }, 500);
+      return;
+    }
     
     this.input.value = '';
     this.addMessage('user', text);
@@ -97,6 +103,16 @@ const ChatUI = {
 
   escapeHtml(value) {
     return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  },
+
+  sanitizeInputForSubmit(input) {
+    if (!input) return "";
+    return input
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")

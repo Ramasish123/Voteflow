@@ -361,8 +361,17 @@
 
     els.chatForm.addEventListener("submit", async function (event) {
       event.preventDefault();
-      const question = els.chatInput.value.trim();
-      if (!question) return;
+      const rawInput = els.chatInput.value.trim();
+      const question = sanitizeInput(rawInput);
+      
+      if (!question) {
+        // Prevent empty input
+        const btn = els.chatForm.querySelector("button");
+        btn.style.backgroundColor = "var(--red)";
+        setTimeout(() => { btn.style.backgroundColor = ""; }, 500);
+        return;
+      }
+      
       addMessage("user", question);
       els.chatInput.value = "";
       
@@ -417,6 +426,38 @@
       toggleReminder(id);
       renderTimeline();
     });
+
+    // Google Maps Demo Modal Logic
+    const findBoothBtn = document.getElementById("findBoothBtn");
+    const mapsModal = document.getElementById("mapsModal");
+    const closeMapsModal = document.getElementById("closeMapsModal");
+
+    if (findBoothBtn && mapsModal && closeMapsModal) {
+      findBoothBtn.addEventListener("click", () => {
+        mapsModal.style.display = "flex";
+      });
+
+      closeMapsModal.addEventListener("click", () => {
+        mapsModal.style.display = "none";
+      });
+
+      mapsModal.addEventListener("click", (e) => {
+        if (e.target === mapsModal) {
+          mapsModal.style.display = "none";
+        }
+      });
+    }
+  }
+
+  // Security: Input Sanitization
+  function sanitizeInput(input) {
+    if (!input) return "";
+    return input
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function routeToCurrentHash() {
@@ -1026,6 +1067,7 @@
 
     const step = getNextStep(userState);
     renderStep(step);
+    updateNextStepBanner(step);
     syncToFirebaseMock(userState);
   }
 
@@ -1132,8 +1174,29 @@
   function updateDecisionUI() {
     const step = getNextStep(userState);
     renderStep(step);
+    updateNextStepBanner(step);
     
     syncToFirebaseMock(userState);
+  }
+
+  function updateNextStepBanner(step) {
+    const banner = document.getElementById("globalNextStepBanner");
+    if (!banner) return;
+    
+    let text = "Loading...";
+    switch(step) {
+      case "REGISTER": text = "Registration is open. Submit your application."; break;
+      case "WAIT_FOR_REGISTRATION": text = "Wait for the registration window to open."; break;
+      case "MISSED_REGISTRATION": text = "You missed the registration deadline for this election."; break;
+      case "VERIFY_DETAILS": text = "Verify your details on the official portal."; break;
+      case "LEARN_CANDIDATES": text = "Campaign ongoing. Review candidate manifestos."; break;
+      case "GO_VOTE": text = "It's voting day! Bring your Voter ID to the booth."; break;
+      case "FIND_ALTERNATE_ID": text = "Find an accepted alternate ID for voting."; break;
+      case "VIEW_RESULTS": text = "The election is over. Check the official results."; break;
+      case "WAIT_FOR_ANNOUNCEMENT": text = "No active election currently. Stay tuned."; break;
+      default: text = "Check the Election Timeline for dates.";
+    }
+    banner.textContent = text;
   }
 
   function initDecisionEngine() {
