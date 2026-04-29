@@ -1251,15 +1251,22 @@
 async function loadGoogleMapsScript() {
   try {
     console.log("Fetching maps key...");
-    const res = await fetch('/api/maps-key');
-    if (!res.ok) {
-      console.error("Maps key fetch failed", res.status);
-      document.querySelector('#googleMap p').textContent = "Map API key not available on server.";
-      return;
+    let apiKey = "AIzaSyDCHMwHBfMLZ72jlqcfDu3L0nETsmFhQH4"; // Default fallback key
+    
+    try {
+      const res = await fetch('/api/maps-key');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.key) {
+          apiKey = data.key;
+        }
+      }
+    } catch(e) {
+      console.log("Vercel API not found, using fallback local key");
     }
-    const data = await res.json();
+
     console.log("Got maps key, injecting script...");
-    if (data.key) {
+    if (apiKey) {
       window.initMap = function() {
         console.log("initMap called by Google Maps!");
         try {
@@ -1292,7 +1299,7 @@ async function loadGoogleMapsScript() {
       };
 
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
       script.async = true;
       script.defer = true;
       script.onerror = function() {
