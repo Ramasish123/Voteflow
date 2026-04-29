@@ -1246,3 +1246,47 @@
     console.log("Dialogflow Hook: Assistant ready to answer context-aware questions.");
   }
 })();
+
+// Google Maps dynamic loading
+async function loadGoogleMapsScript() {
+  try {
+    const res = await fetch('/api/maps-key');
+    if (!res.ok) {
+      // If running locally without Vercel backend, handle gracefully
+      document.querySelector('#googleMap p').textContent = "Map API key not available in local environment.";
+      return;
+    }
+    const data = await res.json();
+    if (data.key) {
+      window.initMap = function() {
+        const mapEl = document.getElementById("googleMap");
+        if (mapEl) {
+          // New Delhi coords as default placeholder
+          const defaultLocation = { lat: 28.6139, lng: 77.2090 };
+          const map = new google.maps.Map(mapEl, {
+            zoom: 14,
+            center: defaultLocation,
+            disableDefaultUI: true,
+          });
+          new google.maps.Marker({
+            position: defaultLocation,
+            map: map,
+            title: "Polling Booth Placeholder"
+          });
+        }
+      };
+
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  } catch (e) {
+    console.warn("Could not load Google Maps API securely", e);
+    const mapMsg = document.querySelector('#googleMap p');
+    if(mapMsg) mapMsg.textContent = "Google Maps API unavailable offline.";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadGoogleMapsScript);
