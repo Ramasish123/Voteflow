@@ -4,22 +4,10 @@ const ChatLogic = {
     ChatUI.setLoading(true);
     const typingBubble = ChatUI.showTyping();
     
-    const apiKey = typeof CONFIG !== 'undefined' ? CONFIG.GROQ_API_KEY : "";
     const contextStr = this.getContext();
-
-    if (!apiKey) {
-      // Fallback logic
-      setTimeout(() => {
-        ChatUI.removeMessage(typingBubble);
-        const fallbackReply = this.getFallbackReply(message, contextStr);
-        ChatUI.addMessage('assistant', fallbackReply);
-        ChatUI.setLoading(false);
-      }, 800);
-      return;
-    }
-
+    
     try {
-      const reply = await this.callGroqAPI(message, apiKey, contextStr);
+      const reply = await this.callGroqAPI(message, contextStr);
       ChatUI.updateMessage(typingBubble, reply);
     } catch (error) {
       console.error("AI API Error:", error);
@@ -43,33 +31,27 @@ const ChatLogic = {
     return `User isRegistered=${isReg}, hasVoterID=${hasId}, electionStage=${stage}.`;
   },
 
-  async callGroqAPI(userMessage, apiKey, context) {
-    const url = "https://api.groq.com/openai/v1/chat/completions";
-    const systemPrompt = `You are a civic election assistant helping users understand the voting process step-by-step. Be simple, clear, and actionable. Keep answers brief. Use this user state context: ${context}`;
-
+  async callGroqAPI(userMessage, context) {
+    const url = "/api/chat";
+    
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // Valid active Groq model
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage }
-        ],
-        max_tokens: 150,
-        temperature: 0.3
+        message: userMessage,
+        context: context
       })
     });
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(`API error: ${errData.error || response.statusText}`);
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    return data.reply;
   },
 
   getFallbackReply(message, context) {

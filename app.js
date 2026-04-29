@@ -385,12 +385,8 @@
 
       try {
         if (typeof ChatLogic !== 'undefined') {
-          const apiKey = typeof CONFIG !== 'undefined' ? CONFIG.GROQ_API_KEY : "";
-          if (!apiKey) {
-            throw new Error("No API Key provided.");
-          }
           const contextStr = ChatLogic.getContext();
-          const reply = await ChatLogic.callGroqAPI(question, apiKey, contextStr);
+          const reply = await ChatLogic.callGroqAPI(question, contextStr);
           typingEl.classList.remove("typing");
           typingEl.innerHTML = `<p>${escapeHtml(reply)}</p>`;
         } else {
