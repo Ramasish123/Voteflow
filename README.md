@@ -74,9 +74,9 @@ We welcome contributions! If you'd like to help make voting more accessible, ple
 ## 📸 Screenshots
 
 <img width="1710" height="1112" alt="Screenshot 2026-04-29 at 2 37 19 PM" src="https://github.com/user-attachments/assets/a1887ae0-18f4-4d54-be13-3b2cff08a4f4" />
+<img width="1710" height="1112" alt="Screenshot 2026-04-29 at 2 50 47 PM" src="https://github.com/user-attachments/assets/fdd2c4a6-8100-4c2c-a228-9f6bccb3688a" />
 <img width="1710" height="1112" alt="image" src="https://github.com/user-attachments/assets/881d9c86-b7b2-41d0-b9a0-f8584de559f0" />
 <img width="1710" height="1112" alt="Screenshot 2026-04-29 at 2 37 57 PM" src="https://github.com/user-attachments/assets/e55c7df5-bdfb-4dd5-952f-98b2e68d8e9e" />
-<img width="1710" height="1112" alt="Screenshot 2026-04-29 at 2 50 47 PM" src="https://github.com/user-attachments/assets/fdd2c4a6-8100-4c2c-a228-9f6bccb3688a" />
 
 
 ---
