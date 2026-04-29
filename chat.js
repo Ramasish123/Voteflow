@@ -4,13 +4,7 @@ const ChatLogic = {
     ChatUI.setLoading(true);
     const typingBubble = ChatUI.showTyping();
     
-    let apiKey = localStorage.getItem("voteFlowApiKey");
-    if (!apiKey) {
-      apiKey = prompt("Please enter your Groq API key to use the AI assistant:");
-      if (apiKey) {
-        localStorage.setItem("voteFlowApiKey", apiKey);
-      }
-    }
+    const apiKey = typeof CONFIG !== 'undefined' ? CONFIG.GROQ_API_KEY : "";
     const contextStr = this.getContext();
 
     if (!apiKey) {

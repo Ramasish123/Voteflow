@@ -385,14 +385,9 @@
 
       try {
         if (typeof ChatLogic !== 'undefined') {
-          let apiKey = localStorage.getItem("voteFlowApiKey");
+          const apiKey = typeof CONFIG !== 'undefined' ? CONFIG.GROQ_API_KEY : "";
           if (!apiKey) {
-            apiKey = prompt("Please enter your Groq API key to use the AI assistant:");
-            if (apiKey) {
-              localStorage.setItem("voteFlowApiKey", apiKey);
-            } else {
-              throw new Error("No API Key provided.");
-            }
+            throw new Error("No API Key provided.");
           }
           const contextStr = ChatLogic.getContext();
           const reply = await ChatLogic.callGroqAPI(question, apiKey, contextStr);
