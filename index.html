@@ -359,13 +359,17 @@
               </div>
               <div class="field-group">
                 <label>Simulate Scenarios</label>
-                <div style="display: flex; gap: 10px;">
-                  <button type="button" id="simMissReg" class="form-action" style="background: var(--surface-hover); color: var(--text-base);">Simulate missing registration</button>
-                  <button type="button" id="simVoteDay" class="form-action" style="background: var(--surface-hover); color: var(--text-base);">Simulate voting day</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  <button type="button" id="simMissReg" class="form-action" onclick="VF_simGuidance('miss-reg')" style="background: var(--control); color: var(--ink); border: 1px solid var(--line); font-weight: 600; padding: 10px 18px; cursor: pointer;">⚠️ Simulate missing registration</button>
+                  <button type="button" id="simVoteDay" class="form-action" onclick="VF_simGuidance('voting-day')" style="background: var(--control); color: var(--ink); border: 1px solid var(--line); font-weight: 600; padding: 10px 18px; cursor: pointer;">🗳️ Simulate voting day</button>
                 </div>
               </div>
             </div>
-            <div class="scenario-answer" id="decisionResult" role="status" style="margin-top: 1rem; padding: 1rem; border-top: 1px solid var(--border);">
+            <div class="scenario-answer" id="decisionResult" role="status" style="margin-top: 1rem; padding: 1rem; border-top: 1px solid var(--line); min-height: 60px;">
+              <div style="background: var(--panel-faint); padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent);">
+                <strong>🧠 Decision Engine Ready</strong>
+                <p style="margin: 6px 0 0;">Change the dropdowns above or click a simulation button to see personalized guidance.</p>
+              </div>
             </div>
           </section>
 
@@ -430,7 +434,7 @@
             <div class="maps-embed-wrapper" id="mapsEmbedWrapper">
               <iframe
                 id="googleMapsEmbed"
-                src="https://maps.google.com/maps?q=polling+booth+near+me&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=polling+booth+India&t=&z=5&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="350"
                 style="border:0; border-radius: 12px;"

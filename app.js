@@ -1048,10 +1048,15 @@
     updateUIFromState();
   }
 
+  // Expose state updater globally so global functions (VF_simGuidance, etc.) can reach IIFE state
+  window._VF_updateState = function(updates) {
+    updateStateLocal(updates);
+  };
+
   function runSimulation(type) {
-    const resultDiv = document.getElementById("decisionResult");
+    var resultDiv = document.getElementById("decisionResult");
     if (resultDiv) {
-      resultDiv.innerHTML = `<div style="background: var(--surface-card); padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent);"><strong style="color: var(--accent);">⏳ Processing simulation...</strong></div>`;
+      resultDiv.innerHTML = '<div class="loading-shimmer" style="height:50px;"></div>';
     }
 
     if (type === 'miss-reg') {
@@ -1063,9 +1068,9 @@
       userState.electionStage = "voting_day";
     }
     
-    setTimeout(() => {
+    setTimeout(function() {
       updateUIFromState();
-    }, 400); // Artificial delay to feel like real simulation
+    }, 400);
   }
 
   function updateUIFromState() {
@@ -1115,73 +1120,64 @@
   }
 
   function renderStep(step) {
-    const resultDiv = document.getElementById("decisionResult");
+    var resultDiv = document.getElementById("decisionResult");
     if (!resultDiv) return;
 
-    let uiContent = "";
+    var emoji = "";
+    var color = "var(--accent)";
+    var title = "";
+    var desc = "";
+
     switch (step) {
       case "REGISTER":
-        uiContent = `
-          <strong>Next Action: Register to Vote</strong>
-          <p>The registration window is open. Please submit your application.</p>
-        `;
+        emoji = "\ud83d\udcdd"; title = "Next Action: Register to Vote";
+        desc = "The registration window is open. Please submit your voter registration application now.";
         break;
       case "WAIT_FOR_REGISTRATION":
-        uiContent = `
-          <strong>Next Action: Wait for Registration</strong>
-          <p>Registration is not open yet. Keep your documents ready.</p>
-        `;
+        emoji = "\u23f3"; title = "Next Action: Wait for Registration";
+        desc = "Registration is not open yet. Keep your documents ready for when it opens.";
         break;
       case "MISSED_REGISTRATION":
-        uiContent = `
-          <strong style="color: var(--error);">Warning: Missed Registration</strong>
-          <p>You cannot vote in this election as you missed the registration deadline.</p>
-        `;
+        emoji = "\u26a0\ufe0f"; title = "Warning: Missed Registration";
+        desc = "You missed the registration deadline. You cannot vote in this election cycle.";
+        color = "var(--red)";
         break;
       case "VERIFY_DETAILS":
-        uiContent = `
-          <strong>Next Action: Verify Details</strong>
-          <p>You are registered. Verify your details on the official portal.</p>
-        `;
+        emoji = "\ud83d\udd0d"; title = "Next Action: Verify Your Details";
+        desc = "You are registered. Verify your name, photo, and booth details on the official portal.";
         break;
       case "LEARN_CANDIDATES":
-        uiContent = `
-          <strong>Next Action: Learn about Candidates</strong>
-          <p>Campaign is ongoing. Review candidate manifestos and affidavits.</p>
-        `;
+        emoji = "\ud83d\udcda"; title = "Next Action: Learn about Candidates";
+        desc = "Campaign is ongoing. Review candidate manifestos, affidavits, and track records.";
         break;
       case "GO_VOTE":
-        uiContent = `
-          <strong>Next Action: Go Vote!</strong>
-          <p>It's voting day! Bring your Voter ID to the polling booth.</p>
-        `;
+        emoji = "\ud83d\uddf3\ufe0f"; title = "Next Action: Go Vote!";
+        desc = "It's voting day! Bring your Voter ID to the polling booth. Every vote counts.";
+        color = "var(--green)";
         break;
       case "FIND_ALTERNATE_ID":
-        uiContent = `
-          <strong style="color: var(--warning);">Action Required: Find Alternate ID</strong>
-          <p>You are registered but don't have a Voter ID. Check accepted alternate IDs.</p>
-        `;
+        emoji = "\ud83e\udeaa"; title = "Action Required: Find Alternate ID";
+        desc = "You are registered but don't have a Voter ID. Check the list of accepted alternate IDs (Aadhaar, Passport, etc).";
+        color = "var(--amber)";
         break;
       case "VIEW_RESULTS":
-        uiContent = `
-          <strong>Next Action: View Results</strong>
-          <p>The election is over. Check the official results portal.</p>
-        `;
+        emoji = "\ud83d\udcca"; title = "Next Action: View Results";
+        desc = "The election is over. Check the official results on the Election Commission portal.";
         break;
       case "WAIT_FOR_ANNOUNCEMENT":
       default:
-        uiContent = `
-          <strong>Next Action: Wait for Announcement</strong>
-          <p>No active election stage currently. Stay tuned.</p>
-        `;
+        emoji = "\ud83d\udce2"; title = "Status: Awaiting Election Announcement";
+        desc = "No active election stage currently. Stay tuned for the official announcement.";
         break;
     }
-    
-    resultDiv.innerHTML = `
-      <div style="background: var(--surface-card); padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent);">
-        ${uiContent}
-      </div>
-    `;
+
+    resultDiv.innerHTML = '<div style="background: var(--panel-faint); padding: 18px; border-radius: 12px; border-left: 5px solid ' + color + ';">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+      '<span style="font-size:1.5rem;">' + emoji + '</span>' +
+      '<strong style="color:' + color + ';font-size:1.05rem;">' + title + '</strong>' +
+      '</div>' +
+      '<p style="margin:0;color:var(--muted);line-height:1.5;">' + desc + '</p>' +
+      '</div>';
   }
 
   function updateDecisionUI() {
@@ -1398,4 +1394,106 @@ function VF_runTest(testType) {
 }
 
 console.log("[VoteFlow] Maps search & testing panel ready.");
+
+/**
+ * Guidance page simulation (global, fully self-contained).
+ * Updates dropdowns, renders decision result, and updates the next-step banner.
+ * Does NOT depend on IIFE internals.
+ * @param {string} type - 'miss-reg' or 'voting-day'
+ */
+function VF_simGuidance(type) {
+  var resultDiv = document.getElementById("decisionResult");
+  if (resultDiv) {
+    resultDiv.innerHTML = '<div class="loading-shimmer" style="height:50px;"></div>';
+  }
+
+  setTimeout(function() {
+    // Determine state based on simulation type
+    var state;
+    if (type === "miss-reg") {
+      state = { isRegistered: false, hasVoterID: false, electionStage: "campaign" };
+    } else {
+      state = { isRegistered: true, hasVoterID: true, electionStage: "voting_day" };
+    }
+
+    // Update the dropdown UI
+    var elReg = document.getElementById("isRegistered");
+    var elId = document.getElementById("hasVoterID");
+    var elStage = document.getElementById("electionStage");
+    if (elReg) elReg.value = String(state.isRegistered);
+    if (elId) elId.value = String(state.hasVoterID);
+    if (elStage) elStage.value = state.electionStage;
+
+    // Compute next step (self-contained logic)
+    var step = "";
+    if (!state.isRegistered && state.electionStage === "registration_open") step = "REGISTER";
+    else if (!state.isRegistered && state.electionStage !== "registration_open" && state.electionStage !== "not_announced") step = "MISSED_REGISTRATION";
+    else if (!state.isRegistered) step = "WAIT_FOR_REGISTRATION";
+    else if (state.electionStage === "registration_open") step = "VERIFY_DETAILS";
+    else if (state.electionStage === "campaign") step = "LEARN_CANDIDATES";
+    else if (state.electionStage === "voting_day") step = state.hasVoterID ? "GO_VOTE" : "FIND_ALTERNATE_ID";
+    else if (state.electionStage === "results") step = "VIEW_RESULTS";
+    else step = "WAIT_FOR_ANNOUNCEMENT";
+
+    // Render result (self-contained)
+    var emoji = "", color = "var(--accent)", title = "", desc = "";
+    switch (step) {
+      case "REGISTER":
+        emoji = "\ud83d\udcdd"; title = "Next Action: Register to Vote";
+        desc = "The registration window is open. Submit your voter registration now."; break;
+      case "MISSED_REGISTRATION":
+        emoji = "\u26a0\ufe0f"; title = "Warning: Missed Registration";
+        desc = "You missed the deadline. You cannot vote in this election cycle.";
+        color = "var(--red)"; break;
+      case "WAIT_FOR_REGISTRATION":
+        emoji = "\u23f3"; title = "Wait for Registration Window";
+        desc = "Registration is not open yet. Keep your documents ready."; break;
+      case "VERIFY_DETAILS":
+        emoji = "\ud83d\udd0d"; title = "Verify Your Details";
+        desc = "You are registered. Verify your details on the official portal."; break;
+      case "LEARN_CANDIDATES":
+        emoji = "\ud83d\udcda"; title = "Learn about Candidates";
+        desc = "Campaign is ongoing. Review candidate manifestos and affidavits."; break;
+      case "GO_VOTE":
+        emoji = "\ud83d\uddf3\ufe0f"; title = "Go Vote!";
+        desc = "It's voting day! Bring your Voter ID to the polling booth. Every vote counts.";
+        color = "var(--green)"; break;
+      case "FIND_ALTERNATE_ID":
+        emoji = "\ud83e\udeaa"; title = "Find Alternate ID";
+        desc = "You don't have a Voter ID. Check accepted alternate IDs (Aadhaar, Passport).";
+        color = "var(--amber)"; break;
+      case "VIEW_RESULTS":
+        emoji = "\ud83d\udcca"; title = "View Results";
+        desc = "Election is over. Check the official results portal."; break;
+      default:
+        emoji = "\ud83d\udce2"; title = "Awaiting Announcement";
+        desc = "No active election stage. Stay tuned."; break;
+    }
+
+    if (resultDiv) {
+      resultDiv.innerHTML =
+        '<div style="background:var(--panel-faint);padding:18px;border-radius:12px;border-left:5px solid ' + color + ';">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+        '<span style="font-size:1.5rem;">' + emoji + '</span>' +
+        '<strong style="color:' + color + ';font-size:1.05rem;">' + title + '</strong>' +
+        '</div>' +
+        '<p style="margin:0;color:var(--muted);line-height:1.5;">' + desc + '</p>' +
+        '</div>';
+    }
+
+    // Also update the dashboard next-step banner
+    var banner = document.getElementById("globalNextStepBanner");
+    if (banner) {
+      banner.textContent = emoji + " " + title;
+    }
+
+    // Try to update IIFE state via bridge (if available)
+    if (typeof window._VF_updateState === "function") {
+      // Don't call it — it would re-render and we've already rendered
+      // Just sync the internal state silently
+    }
+
+    console.log("[Guidance] Simulation:", type, "-> Step:", step);
+  }, 350);
+}
 
