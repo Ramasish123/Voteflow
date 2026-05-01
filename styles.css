@@ -1716,3 +1716,271 @@ body[data-page="assistant"] #floating-chat-container {
   opacity: 0.6;
   font-style: italic;
 }
+
+/* ====== GOOGLE MAPS EMBED ====== */
+.maps-search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.maps-search-bar input {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--control);
+  font: inherit;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+
+.maps-search-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.maps-search-bar .form-action {
+  min-height: 48px;
+  padding: 0 24px;
+  white-space: nowrap;
+}
+
+.maps-embed-wrapper {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel-faint);
+  position: relative;
+}
+
+.maps-embed-wrapper iframe {
+  display: block;
+  width: 100%;
+}
+
+.google-powered-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--green-bg);
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+/* ====== TESTING PANEL ====== */
+.testing-panel {
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+}
+
+.test-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.test-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--control);
+  color: var(--card-ink);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.test-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.test-btn:active {
+  transform: translateY(0);
+}
+
+.test-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.test-results {
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-faint);
+  min-height: 80px;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+
+.test-results p {
+  margin: 0;
+}
+
+.test-idle {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.test-pass {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.test-fail {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.test-result-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.test-result-item:last-child {
+  border-bottom: none;
+}
+
+/* ====== SECURITY CARD ====== */
+.security-features {
+  display: grid;
+  gap: 16px;
+}
+
+.security-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-faint);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.security-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.security-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.security-item strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.98rem;
+}
+
+.security-item p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* ====== GOOGLE SEARCH BUTTON ====== */
+.google-search-section {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.google-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: var(--action-gradient);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 8px 24px var(--accent-glow);
+  transition: transform 160ms ease, box-shadow 200ms ease;
+}
+
+.google-search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px var(--accent-glow);
+  color: #fff;
+}
+
+/* ====== DECISION ENGINE ENHANCEMENTS ====== */
+.decision-engine-card {
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+  position: relative;
+  overflow: hidden;
+}
+
+.decision-engine-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--action-gradient);
+}
+
+.decision-engine-card .card-head h2::before {
+  content: "🧠 ";
+}
+
+/* ====== LOADING SHIMMER ====== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, var(--panel-faint) 25%, var(--accent-soft) 50%, var(--panel-faint) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+  border-radius: 8px;
+  min-height: 20px;
+}
+
+/* ====== PULSE ANIMATION FOR LIVE BADGES ====== */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+
+.google-powered-badge {
+  animation: pulse-glow 3s ease infinite;
+}
+
+/* ====== RESPONSIVE ADJUSTMENTS ====== */
+@media (max-width: 680px) {
+  .test-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+  .maps-search-bar {
+    flex-direction: column;
+  }
+}

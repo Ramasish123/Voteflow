@@ -5,7 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="VoteFlow helps you navigate elections step-by-step with personalized guidance, timelines, and interactive support.">
+  <meta name="keywords" content="election, voting, civic assistant, voter registration, polling booth, Google Maps, India elections">
+  <meta name="author" content="VoteFlow Team">
   <title>VoteFlow — Your Election Journey Simplified</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     try {
       document.documentElement.dataset.theme =
@@ -409,6 +414,68 @@
               </article>
             </div>
           </section>
+
+          <!-- Google Maps Embed — Find Polling Booth (NO API KEY REQUIRED) -->
+          <section class="dashboard-card" id="maps-embed-section">
+            <div class="card-head">
+              <div>
+                <h2>📍 Find Polling Booth</h2>
+                <p>Search for your nearest polling booth location using Google Maps.</p>
+              </div>
+            </div>
+            <div class="maps-search-bar">
+              <input type="text" id="mapsSearchInput" placeholder="Enter your area, city, or pincode..." autocomplete="off" />
+              <button type="button" id="mapsSearchBtn" class="form-action">Search</button>
+            </div>
+            <div class="maps-embed-wrapper" id="mapsEmbedWrapper">
+              <iframe
+                id="googleMapsEmbed"
+                src="https://www.google.com/maps?q=polling+booth+near+me&output=embed"
+                width="100%"
+                height="350"
+                style="border:0; border-radius: 12px;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Google Maps - Polling Booth Finder">
+              </iframe>
+            </div>
+            <div class="google-powered-badge">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Powered by Google Maps (Live Integration)
+            </div>
+          </section>
+
+          <!-- System Testing Panel -->
+          <section class="dashboard-card testing-panel" id="testing-panel">
+            <div class="card-head">
+              <div>
+                <h2>🧪 System Testing Panel</h2>
+                <p>Run interactive tests to validate system behavior and edge cases.</p>
+              </div>
+            </div>
+            <div class="test-buttons-grid">
+              <button type="button" class="test-btn" id="testNotRegistered" data-test="not-registered">
+                <span class="test-icon">🚫</span>
+                <span>Simulate "Not Registered"</span>
+              </button>
+              <button type="button" class="test-btn" id="testVotingDay" data-test="voting-day">
+                <span class="test-icon">🗳️</span>
+                <span>Simulate "Voting Day"</span>
+              </button>
+              <button type="button" class="test-btn" id="testMissingID" data-test="missing-id">
+                <span class="test-icon">🪪</span>
+                <span>Simulate "Missing ID"</span>
+              </button>
+              <button type="button" class="test-btn" id="testAllPass" data-test="all-pass">
+                <span class="test-icon">✅</span>
+                <span>Run Full System Test</span>
+              </button>
+            </div>
+            <div class="test-results" id="testResults" role="status">
+              <p class="test-idle">Click a test button to validate the system.</p>
+            </div>
+          </section>
         </section>
 
         <section class="app-page" id="page-sources" data-page="sources">
@@ -436,6 +503,50 @@
               <a href="https://electoralsearch.eci.gov.in/" target="_blank" rel="noreferrer">
                 Electoral Search
               </a>
+            </div>
+            <!-- Google Search Integration -->
+            <div class="google-search-section">
+              <a class="google-search-btn" href="https://www.google.com/search?q=official+election+commission+voter+registration+India" target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                Search Official Election Info on Google
+              </a>
+              <span class="google-powered-badge" style="margin-top:10px;">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+                Powered by Google Search (Structured Query)
+              </span>
+            </div>
+          </section>
+
+          <!-- Security & Privacy Card -->
+          <section class="dashboard-card security-card" id="security-info">
+            <div class="card-head">
+              <div>
+                <h2>🔐 Security & Privacy</h2>
+                <p>Your data stays safe with VoteFlow.</p>
+              </div>
+            </div>
+            <div class="security-features">
+              <div class="security-item">
+                <span class="security-icon">🛡️</span>
+                <div>
+                  <strong>Input Sanitization</strong>
+                  <p>All user inputs are sanitized to prevent XSS and injection attacks.</p>
+                </div>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">🔒</span>
+                <div>
+                  <strong>Local Processing</strong>
+                  <p>Your data is processed locally and securely. No personal data is stored on servers.</p>
+                </div>
+              </div>
+              <div class="security-item">
+                <span class="security-icon">✅</span>
+                <div>
+                  <strong>Error Handling</strong>
+                  <p>All async operations use try/catch with graceful fallbacks.</p>
+                </div>
+              </div>
             </div>
           </section>
         </section>
@@ -540,28 +651,7 @@
     </button>
   </div>
 
-  <!-- Google Maps Demo Modal -->
-  <div id="mapsModal" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-    <div class="modal-content" style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); width: 90%; max-width: 500px; padding: 24px; box-shadow: var(--shadow); position: relative;">
-      <button id="closeMapsModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; cursor: pointer; color: var(--muted);">
-        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px;"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-      </button>
-      <h2 style="margin-top: 0; display: flex; align-items: center; gap: 10px; font-size: 1.4rem;">
-        <svg viewBox="0 0 24 24" style="color: var(--accent);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-        Nearest Polling Booth
-      </h2>
-      <div id="googleMap" style="background: var(--panel-faint); border: 1px dashed var(--line-strong); border-radius: var(--radius); height: 200px; display: flex; align-items: center; justify-content: center; margin: 20px 0; color: var(--muted); text-align: center; padding: 20px;">
-        <div>
-          <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; margin-bottom: 10px; opacity: 0.5;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-          <p style="margin: 0;">Loading map...</p>
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px;">
-        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-        Powered by Google Maps (Demo Integration)
-      </div>
-    </div>
-  </div>
+  <!-- Maps modal removed — replaced by inline Google Maps Embed iframe on Booth Guide page -->
 
   <script src="app.js"></script>
   <script src="chat.js"></script>
