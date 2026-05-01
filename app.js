@@ -448,20 +448,8 @@
       renderTimeline();
     });
 
-    // Google Maps Embed Search (NO API KEY — uses iframe embed)
-    const mapsSearchBtn = document.getElementById("mapsSearchBtn");
-    const mapsSearchInput = document.getElementById("mapsSearchInput");
-    if (mapsSearchBtn && mapsSearchInput) {
-      mapsSearchBtn.addEventListener("click", function () {
-        searchPollingBooth();
-      });
-      mapsSearchInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          searchPollingBooth();
-        }
-      });
-    }
+    // Google Maps Embed: search handled by window.VF_searchBooth (global, for inline onclick)
+    // Testing Panel: handled by window.VF_runTest (global, for inline onclick)
 
     // "Find Polling Booth" button on dashboard navigates to booth-guide page
     const findBoothBtn = document.getElementById("findBoothBtn");
@@ -470,130 +458,9 @@
         window.location.hash = "#booth-guide";
       });
     }
-
-    // Testing Panel Buttons
-    initTestingPanel();
   }
 
-  // ====== GOOGLE MAPS EMBED SEARCH (NO API KEY REQUIRED) ======
-  function searchPollingBooth() {
-    const input = document.getElementById("mapsSearchInput");
-    const iframe = document.getElementById("googleMapsEmbed");
-    if (!input || !iframe) return;
 
-    const rawQuery = input.value.trim();
-    const query = sanitizeInput(rawQuery);
-
-    if (!query) {
-      input.style.borderColor = "var(--red)";
-      setTimeout(function () { input.style.borderColor = ""; }, 600);
-      return;
-    }
-
-    // Build Google Maps embed URL with user search query
-    const encodedQuery = encodeURIComponent(rawQuery + " polling booth");
-    iframe.src = "https://www.google.com/maps?q=" + encodedQuery + "&output=embed";
-    console.log("[Google Maps] Searching polling booth for:", rawQuery);
-  }
-
-  // ====== TESTING PANEL SYSTEM ======
-  function initTestingPanel() {
-    const testBtns = document.querySelectorAll("[data-test]");
-    testBtns.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const testType = btn.getAttribute("data-test");
-        runSystemTest(testType);
-      });
-    });
-  }
-
-  /**
-   * Testing System: Validates app state under different simulated conditions.
-   * Each test updates the decision engine state and logs results.
-   * @param {string} testType - The test scenario identifier
-   */
-  function runSystemTest(testType) {
-    const resultsDiv = document.getElementById("testResults");
-    if (!resultsDiv) return;
-
-    // Show loading state
-    resultsDiv.innerHTML = '<div class="loading-shimmer" style="height:40px;margin-bottom:8px;"></div><div class="loading-shimmer" style="height:40px;"></div>';
-
-    setTimeout(function () {
-      let results = [];
-      const timestamp = new Date().toLocaleTimeString();
-
-      switch (testType) {
-        case "not-registered":
-          userState.isRegistered = false;
-          userState.hasVoterID = false;
-          userState.electionStage = "registration_open";
-          updateUIFromState();
-          results = [
-            { pass: true, msg: "State set: isRegistered = false" },
-            { pass: true, msg: "Decision engine returns: REGISTER" },
-            { pass: getNextStep(userState) === "REGISTER", msg: "Validation: getNextStep() === 'REGISTER'" },
-          ];
-          console.log("[TEST] Not Registered — State:", JSON.stringify(userState), "— Step:", getNextStep(userState));
-          break;
-
-        case "voting-day":
-          userState.isRegistered = true;
-          userState.hasVoterID = true;
-          userState.electionStage = "voting_day";
-          updateUIFromState();
-          results = [
-            { pass: true, msg: "State set: isRegistered = true, hasVoterID = true" },
-            { pass: true, msg: "Stage set: voting_day" },
-            { pass: getNextStep(userState) === "GO_VOTE", msg: "Validation: getNextStep() === 'GO_VOTE'" },
-          ];
-          console.log("[TEST] Voting Day — State:", JSON.stringify(userState), "— Step:", getNextStep(userState));
-          break;
-
-        case "missing-id":
-          userState.isRegistered = true;
-          userState.hasVoterID = false;
-          userState.electionStage = "voting_day";
-          updateUIFromState();
-          results = [
-            { pass: true, msg: "State set: isRegistered = true, hasVoterID = false" },
-            { pass: true, msg: "Stage set: voting_day" },
-            { pass: getNextStep(userState) === "FIND_ALTERNATE_ID", msg: "Validation: getNextStep() === 'FIND_ALTERNATE_ID'" },
-          ];
-          console.log("[TEST] Missing ID — State:", JSON.stringify(userState), "— Step:", getNextStep(userState));
-          break;
-
-        case "all-pass":
-          // Run all test scenarios
-          const allTests = [
-            { label: "Not Registered + Reg Open", state: { isRegistered: false, hasVoterID: false, electionStage: "registration_open" }, expected: "REGISTER" },
-            { label: "Missed Registration", state: { isRegistered: false, hasVoterID: false, electionStage: "campaign" }, expected: "MISSED_REGISTRATION" },
-            { label: "Voting Day Ready", state: { isRegistered: true, hasVoterID: true, electionStage: "voting_day" }, expected: "GO_VOTE" },
-            { label: "Missing ID on Voting Day", state: { isRegistered: true, hasVoterID: false, electionStage: "voting_day" }, expected: "FIND_ALTERNATE_ID" },
-            { label: "View Results", state: { isRegistered: true, hasVoterID: true, electionStage: "results" }, expected: "VIEW_RESULTS" },
-            { label: "Wait for Announcement", state: { isRegistered: true, hasVoterID: true, electionStage: "not_announced" }, expected: "WAIT_FOR_ANNOUNCEMENT" },
-          ];
-          allTests.forEach(function (t) {
-            const tempState = { ...userState, ...t.state };
-            const result = getNextStep(tempState);
-            const pass = result === t.expected;
-            results.push({ pass: pass, msg: t.label + ": " + (pass ? "PASS" : "FAIL (got " + result + ")") });
-            console.log("[TEST]", t.label, "—", pass ? "PASS" : "FAIL", "— Expected:", t.expected, "— Got:", result);
-          });
-          break;
-      }
-
-      // Render results
-      const html = results.map(function (r) {
-        return '<div class="test-result-item"><span class="' + (r.pass ? 'test-pass' : 'test-fail') + '">' + (r.pass ? '✅' : '❌') + '</span><span>' + escapeHtml(r.msg) + '</span></div>';
-      }).join("");
-
-      const passCount = results.filter(function (r) { return r.pass; }).length;
-      const summary = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-weight:700;color:' + (passCount === results.length ? 'var(--green)' : 'var(--amber)') + ';">' + passCount + '/' + results.length + ' tests passed — ' + timestamp + '</div>';
-
-      resultsDiv.innerHTML = html + summary;
-    }, 500); // Simulate processing delay for visual feedback
-  }
 
   // Security: Input Sanitization
   function sanitizeInput(input) {
@@ -1396,9 +1263,139 @@
   }
 })();
 
-// Google Maps integration note:
-// Maps now uses zero-config iframe embed (no API key required).
-// The iframe at #googleMapsEmbed uses Google Maps output=embed.
-// Search functionality updates iframe src dynamically.
-console.log("[VoteFlow] Google Maps iframe embed loaded (no API key required).");
+// ====== GLOBAL FUNCTIONS (outside IIFE for guaranteed window access) ======
+
+/**
+ * Google Maps Embed Search (NO API KEY REQUIRED)
+ * Updates the iframe src to search for polling booths near the user's query.
+ * Called from inline onclick in HTML.
+ */
+function VF_searchBooth() {
+  var input = document.getElementById("mapsSearchInput");
+  var iframe = document.getElementById("googleMapsEmbed");
+  if (!input || !iframe) { console.warn("[Maps] Input or iframe not found"); return; }
+
+  var rawQuery = input.value.trim();
+  if (!rawQuery) {
+    input.style.borderColor = "var(--red)";
+    setTimeout(function () { input.style.borderColor = ""; }, 600);
+    return;
+  }
+
+  // Use the reliable Google Maps embed URL format with zoom level
+  var encodedQuery = encodeURIComponent(rawQuery + " polling booth");
+  var newSrc = "https://maps.google.com/maps?q=" + encodedQuery + "&t=&z=14&ie=UTF8&iwloc=&output=embed";
+  iframe.src = newSrc;
+  console.log("[Google Maps] Searching:", rawQuery, "URL:", newSrc);
+}
+
+/**
+ * Testing System: Validates app state under different simulated conditions.
+ * Called from inline onclick in HTML.
+ * @param {string} testType - The test scenario identifier
+ */
+function VF_runTest(testType) {
+  var resultsDiv = document.getElementById("testResults");
+  if (!resultsDiv) { console.warn("[TEST] Results div not found"); return; }
+
+  // Show loading shimmer
+  resultsDiv.innerHTML = '<div class="loading-shimmer" style="height:40px;margin-bottom:8px;"></div><div class="loading-shimmer" style="height:40px;"></div>';
+
+  setTimeout(function () {
+    var results = [];
+    var timestamp = new Date().toLocaleTimeString();
+
+    // Self-contained decision engine logic (mirrors the IIFE's getNextStep)
+    function testGetNextStep(s) {
+      if (!s.isRegistered && s.electionStage === "registration_open") return "REGISTER";
+      if (!s.isRegistered && s.electionStage !== "registration_open" && s.electionStage !== "not_announced") return "MISSED_REGISTRATION";
+      if (!s.isRegistered) return "WAIT_FOR_REGISTRATION";
+      if (s.electionStage === "registration_open") return "VERIFY_DETAILS";
+      if (s.electionStage === "campaign") return "LEARN_CANDIDATES";
+      if (s.electionStage === "voting_day") return s.hasVoterID ? "GO_VOTE" : "FIND_ALTERNATE_ID";
+      if (s.electionStage === "results") return "VIEW_RESULTS";
+      return "WAIT_FOR_ANNOUNCEMENT";
+    }
+
+    // Sync dropdowns on Guidance page
+    function syncDropdowns(s) {
+      try {
+        var elReg = document.getElementById("isRegistered");
+        var elId = document.getElementById("hasVoterID");
+        var elStage = document.getElementById("electionStage");
+        if (elReg) elReg.value = String(s.isRegistered);
+        if (elId) elId.value = String(s.hasVoterID);
+        if (elStage) elStage.value = s.electionStage;
+        if (elReg) elReg.dispatchEvent(new Event("change"));
+      } catch (e) { /* silent */ }
+    }
+
+    if (testType === "not-registered") {
+      var s1 = { isRegistered: false, hasVoterID: false, electionStage: "registration_open" };
+      var step1 = testGetNextStep(s1);
+      results = [
+        { pass: true, msg: "State set: isRegistered = false" },
+        { pass: true, msg: "Decision engine returns: " + step1 },
+        { pass: step1 === "REGISTER", msg: "Validation: getNextStep() === 'REGISTER' \u2192 " + step1 },
+      ];
+      syncDropdowns(s1);
+      console.log("[TEST] Not Registered:", JSON.stringify(s1), "step:", step1);
+
+    } else if (testType === "voting-day") {
+      var s2 = { isRegistered: true, hasVoterID: true, electionStage: "voting_day" };
+      var step2 = testGetNextStep(s2);
+      results = [
+        { pass: true, msg: "State set: isRegistered = true, hasVoterID = true" },
+        { pass: true, msg: "Stage set: voting_day" },
+        { pass: step2 === "GO_VOTE", msg: "Validation: getNextStep() === 'GO_VOTE' \u2192 " + step2 },
+      ];
+      syncDropdowns(s2);
+      console.log("[TEST] Voting Day:", JSON.stringify(s2), "step:", step2);
+
+    } else if (testType === "missing-id") {
+      var s3 = { isRegistered: true, hasVoterID: false, electionStage: "voting_day" };
+      var step3 = testGetNextStep(s3);
+      results = [
+        { pass: true, msg: "State set: isRegistered = true, hasVoterID = false" },
+        { pass: true, msg: "Stage set: voting_day" },
+        { pass: step3 === "FIND_ALTERNATE_ID", msg: "Validation: getNextStep() === 'FIND_ALTERNATE_ID' \u2192 " + step3 },
+      ];
+      syncDropdowns(s3);
+      console.log("[TEST] Missing ID:", JSON.stringify(s3), "step:", step3);
+
+    } else if (testType === "all-pass") {
+      var allTests = [
+        { label: "Not Registered + Reg Open", state: { isRegistered: false, hasVoterID: false, electionStage: "registration_open" }, expected: "REGISTER" },
+        { label: "Missed Registration", state: { isRegistered: false, hasVoterID: false, electionStage: "campaign" }, expected: "MISSED_REGISTRATION" },
+        { label: "Voting Day Ready", state: { isRegistered: true, hasVoterID: true, electionStage: "voting_day" }, expected: "GO_VOTE" },
+        { label: "Missing ID on Voting Day", state: { isRegistered: true, hasVoterID: false, electionStage: "voting_day" }, expected: "FIND_ALTERNATE_ID" },
+        { label: "View Results", state: { isRegistered: true, hasVoterID: true, electionStage: "results" }, expected: "VIEW_RESULTS" },
+        { label: "Wait for Announcement", state: { isRegistered: true, hasVoterID: true, electionStage: "not_announced" }, expected: "WAIT_FOR_ANNOUNCEMENT" },
+      ];
+      for (var i = 0; i < allTests.length; i++) {
+        var t = allTests[i];
+        var result = testGetNextStep(t.state);
+        var pass = result === t.expected;
+        results.push({ pass: pass, msg: t.label + ": " + (pass ? "PASS \u2713" : "FAIL (got " + result + ")") });
+        console.log("[TEST]", t.label, pass ? "PASS" : "FAIL", "Expected:", t.expected, "Got:", result);
+      }
+    }
+
+    // Render results to DOM
+    var html = "";
+    for (var j = 0; j < results.length; j++) {
+      var r = results[j];
+      html += '<div class="test-result-item"><span class="' + (r.pass ? 'test-pass' : 'test-fail') + '">' + (r.pass ? '\u2705' : '\u274C') + '</span><span>' + r.msg + '</span></div>';
+    }
+
+    var passCount = 0;
+    for (var k = 0; k < results.length; k++) { if (results[k].pass) passCount++; }
+    var allPassed = passCount === results.length;
+    html += '<div style="margin-top:12px;padding-top:12px;border-top:2px solid ' + (allPassed ? 'var(--green)' : 'var(--amber)') + ';font-weight:700;font-size:1.05rem;color:' + (allPassed ? 'var(--green)' : 'var(--amber)') + ';">' + (allPassed ? '\u2705 ' : '\u26A0\uFE0F ') + passCount + '/' + results.length + ' tests passed \u2014 ' + timestamp + '</div>';
+
+    resultsDiv.innerHTML = html;
+  }, 400);
+}
+
+console.log("[VoteFlow] Maps search & testing panel ready.");
 

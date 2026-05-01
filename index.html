@@ -424,13 +424,13 @@
               </div>
             </div>
             <div class="maps-search-bar">
-              <input type="text" id="mapsSearchInput" placeholder="Enter your area, city, or pincode..." autocomplete="off" />
-              <button type="button" id="mapsSearchBtn" class="form-action">Search</button>
+              <input type="text" id="mapsSearchInput" placeholder="Enter your area, city, or pincode..." autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();window.VF_searchBooth();}" />
+              <button type="button" id="mapsSearchBtn" class="form-action" onclick="window.VF_searchBooth()">Search</button>
             </div>
             <div class="maps-embed-wrapper" id="mapsEmbedWrapper">
               <iframe
                 id="googleMapsEmbed"
-                src="https://www.google.com/maps?q=polling+booth+near+me&output=embed"
+                src="https://maps.google.com/maps?q=polling+booth+near+me&t=&z=13&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="350"
                 style="border:0; border-radius: 12px;"
@@ -455,19 +455,19 @@
               </div>
             </div>
             <div class="test-buttons-grid">
-              <button type="button" class="test-btn" id="testNotRegistered" data-test="not-registered">
+              <button type="button" class="test-btn" id="testNotRegistered" onclick="window.VF_runTest('not-registered')">
                 <span class="test-icon">🚫</span>
                 <span>Simulate "Not Registered"</span>
               </button>
-              <button type="button" class="test-btn" id="testVotingDay" data-test="voting-day">
+              <button type="button" class="test-btn" id="testVotingDay" onclick="window.VF_runTest('voting-day')">
                 <span class="test-icon">🗳️</span>
                 <span>Simulate "Voting Day"</span>
               </button>
-              <button type="button" class="test-btn" id="testMissingID" data-test="missing-id">
+              <button type="button" class="test-btn" id="testMissingID" onclick="window.VF_runTest('missing-id')">
                 <span class="test-icon">🪪</span>
                 <span>Simulate "Missing ID"</span>
               </button>
-              <button type="button" class="test-btn" id="testAllPass" data-test="all-pass">
+              <button type="button" class="test-btn" id="testAllPass" onclick="window.VF_runTest('all-pass')">
                 <span class="test-icon">✅</span>
                 <span>Run Full System Test</span>
               </button>
